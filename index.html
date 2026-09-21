@@ -850,23 +850,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // App State
-    let volunteers = JSON.parse(localStorage.getItem('cooking_volunteers')) || [
-      "Alice Johnson",
-      "Bob Smith",
-      "Charlie Davis",
-      "Elena Rostova",
-      "Marcus Lee"
-    ];
-    let currentUser = localStorage.getItem('cooking_active_user') || volunteers[0] || "Alice Johnson";
+    // App State - Clean without test dummy names
+    const testNames = new Set(["Alice Johnson", "Bob Smith", "Charlie Davis", "Elena Rostova", "Marcus Lee"]);
+    let rawStoredVolunteers = JSON.parse(localStorage.getItem('cooking_volunteers')) || [];
+    let volunteers = rawStoredVolunteers.filter(v => !testNames.has(v));
+    let storedUser = localStorage.getItem('cooking_active_user') || "";
+    let currentUser = (!testNames.has(storedUser) && volunteers.includes(storedUser)) ? storedUser : (volunteers[0] || "");
     let currentDate = new Date();
     let selectedWeeklyDays = new Set([0, 6]); // Weekend default
     
     let bookings = JSON.parse(localStorage.getItem('cooking_bookings')) || {};
     let availability = JSON.parse(localStorage.getItem('cooking_availability')) || {};
-    volunteers.forEach(v => {
-      if (!availability[v]) availability[v] = {};
-    });
 
     let isCloudSynced = false;
 
@@ -878,26 +872,62 @@
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data.volunteers && Array.isArray(data.volunteers)) {
-            volunteers = data.volunteers;
-          }
-          if (data.bookings) {
-            bookings = data.bookings;
-          }
-          if (data.availability) {
-            availability = data.availability;
+            // Filter out any mock test names
+            const filteredVolunteers = data.volunteers.filter(v => !testNames.has(v));
+            
+            // Clean test names from bookings
+            const cleanedBookings = {};
+            if (data.bookings) {
+              for (const [date, dayObj] of Object.entries(data.bookings)) {
+                cleanedBookings[date] = {
+                  lunch: {
+                    cooks: (dayObj.lunch?.cooks || []).filter(c => !testNames.has(c)),
+                    meal: (dayObj.lunch?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.lunch?.meal || '') : '',
+                    notes: (dayObj.lunch?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.lunch?.notes || '') : ''
+                  },
+                  dinner: {
+                    cooks: (dayObj.dinner?.cooks || []).filter(c => !testNames.has(c)),
+                    meal: (dayObj.dinner?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.dinner?.meal || '') : '',
+                    notes: (dayObj.dinner?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.dinner?.notes || '') : ''
+                  }
+                };
+              }
+            }
+
+            // Clean test names from availability
+            const cleanedAvailability = {};
+            if (data.availability) {
+              for (const [vol, dates] of Object.entries(data.availability)) {
+                if (!testNames.has(vol)) {
+                  cleanedAvailability[vol] = dates;
+                }
+              }
+            }
+
+            volunteers = filteredVolunteers;
+            bookings = cleanedBookings;
+            availability = cleanedAvailability;
+
+            // If sample test names were in Firestore, purge them from the cloud
+            if (data.volunteers.some(v => testNames.has(v))) {
+              syncToCloud();
+            }
           }
           isCloudSynced = true;
           saveLocalCache();
           if (!volunteers.includes(currentUser)) {
-            currentUser = volunteers[0] || "Alice Johnson";
+            currentUser = volunteers[0] || "";
           }
           renderVolunteerDropdown();
           renderCalendar();
           updateStats();
           renderRosterTable();
         } else {
-          // First time initialization in Cloud Firestore
-          initSeedData();
+          // Fresh clean initialization in Firestore
+          volunteers = [];
+          bookings = {};
+          availability = {};
+          currentUser = "";
           syncToCloud();
         }
       }, (error) => {
@@ -906,36 +936,7 @@
     }
 
     function initSeedData() {
-      const today = new Date();
-      const yr = today.getFullYear();
-      const mo = today.getMonth();
-
-      const formatKey = (d) => {
-        const monthStr = String(mo + 1).padStart(2, '0');
-        const dayStr = String(d).padStart(2, '0');
-        return `${yr}-${monthStr}-${dayStr}`;
-      };
-
-      if (Object.keys(bookings).length === 0) {
-        const d1 = formatKey(Math.min(today.getDate() + 1, 28));
-        const d2 = formatKey(Math.min(today.getDate() + 3, 28));
-        const d3 = formatKey(Math.min(today.getDate() + 5, 28));
-
-        bookings[d1] = {
-          lunch: { cooks: ["Alice Johnson", "Marcus Lee"], meal: "Lentil Soup & Sourdough Bread", notes: "Vegetarian, 40 servings" },
-          dinner: { cooks: ["Elena Rostova"], meal: "Baked Lemon Chicken & Rice", notes: "Halal" }
-        };
-
-        bookings[d2] = {
-          lunch: { cooks: ["Bob Smith"], meal: "Mediterranean Falafel Bowls", notes: "Vegan" },
-          dinner: { cooks: ["Charlie Davis", "Alice Johnson"], meal: "Hearty Beef Stew & Mashed Potatoes", notes: "" }
-        };
-
-        bookings[d3] = {
-          lunch: { cooks: ["Marcus Lee"], meal: "Vegetable Fried Rice & Tofu", notes: "Nut-free" },
-          dinner: { cooks: [], meal: "", notes: "" }
-        };
-      }
+      // Empty initialization
     }
 
     function saveLocalCache() {
@@ -967,14 +968,22 @@
     function renderVolunteerDropdown() {
       const select = document.getElementById('userSelector');
       select.innerHTML = '';
-      volunteers.forEach(name => {
+      if (volunteers.length === 0) {
         const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        if (name === currentUser) opt.selected = true;
+        opt.value = "";
+        opt.textContent = "-- No volunteers yet (click + New) --";
         select.appendChild(opt);
-      });
-      document.getElementById('currentAvatar').textContent = currentUser.charAt(0).toUpperCase();
+        document.getElementById('currentAvatar').textContent = "+";
+      } else {
+        volunteers.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          if (name === currentUser) opt.selected = true;
+          select.appendChild(opt);
+        });
+        document.getElementById('currentAvatar').textContent = currentUser ? currentUser.charAt(0).toUpperCase() : "+";
+      }
       document.getElementById('statTotalVolunteers').textContent = volunteers.length;
     }
 
