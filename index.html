@@ -469,6 +469,21 @@
       border: 1px solid var(--slot-avail-border);
     }
 
+    .calendar-day.non-cooking-day {
+      background: #fbf9f5;
+      opacity: 0.75;
+    }
+
+    .non-cooking-label {
+      font-size: 0.7rem;
+      color: #9e8f7e;
+      font-style: italic;
+      text-align: center;
+      margin-top: auto;
+      margin-bottom: auto;
+      padding: 0.5rem 0.2rem;
+    }
+
     /* Slots inside day */
     .slot-list {
       display: flex;
@@ -478,21 +493,21 @@
     }
 
     .slot-item {
-      padding: 0.4rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
+      padding: 0.5rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
       border: 1px solid var(--border-color);
       background: var(--slot-empty);
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       cursor: pointer;
       transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
     }
 
     .slot-item:hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 5px rgba(61, 46, 30, 0.1);
+      box-shadow: 0 3px 8px rgba(61, 46, 30, 0.12);
       border-color: var(--gold-primary);
     }
 
@@ -518,7 +533,7 @@
     }
 
     .slot-cooks {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       color: inherit;
       opacity: 0.95;
       white-space: nowrap;
@@ -527,7 +542,7 @@
     }
 
     .slot-needed-tag {
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       color: #a3222e;
       font-weight: 700;
     }
@@ -823,22 +838,12 @@
 
     <!-- Quick Weekly Availability Log Panel -->
     <div class="quick-avail-box">
-      <h2>⚡ 1. Log Your Weekly Availability</h2>
-      <p>Select the recurring days of the week you are generally free to cook. Click "Apply to Current Month" to mark your availability across all matching dates!</p>
+      <h2>⚡ 1. Log Your Weekly Availability (Mon, Wed, Fri)</h2>
+      <p>Select which cooking days (Monday, Wednesday, Friday) you are available. Click "Apply to Current Month" to mark your availability across all matching dates!</p>
       <div class="weekly-presets">
-        <button type="button" class="day-toggle" data-day="0" onclick="toggleWeekDay(0)">Sun</button>
-        <button type="button" class="day-toggle" data-day="1" onclick="toggleWeekDay(1)">Mon</button>
-        <button type="button" class="day-toggle" data-day="2" onclick="toggleWeekDay(2)">Tue</button>
-        <button type="button" class="day-toggle" data-day="3" onclick="toggleWeekDay(3)">Wed</button>
-        <button type="button" class="day-toggle" data-day="4" onclick="toggleWeekDay(4)">Thu</button>
-        <button type="button" class="day-toggle" data-day="5" onclick="toggleWeekDay(5)">Fri</button>
-        <button type="button" class="day-toggle" data-day="6" onclick="toggleWeekDay(6)">Sat</button>
-
-        <select id="availMealType" class="input-field" style="width: auto; padding: 0.45rem 0.75rem; font-size: 0.85rem;">
-          <option value="all">Any Shift (Lunch & Dinner)</option>
-          <option value="lunch">Lunch Shift Only (10:00 - 14:00)</option>
-          <option value="dinner">Dinner Shift Only (16:00 - 20:00)</option>
-        </select>
+        <button type="button" class="day-toggle" data-day="1" onclick="toggleWeekDay(1)">🗓️ Monday</button>
+        <button type="button" class="day-toggle" data-day="3" onclick="toggleWeekDay(3)">🗓️ Wednesday</button>
+        <button type="button" class="day-toggle" data-day="5" onclick="toggleWeekDay(5)">🗓️ Friday</button>
 
         <button type="button" class="apply-avail-btn" onclick="applyAvailabilityToMonth()">Apply to Current Month</button>
       </div>
@@ -880,9 +885,8 @@
         <thead>
           <tr>
             <th>Date</th>
-            <th>Shift</th>
             <th>Meal Plan / Dish</th>
-            <th>Cooks Assigned</th>
+            <th>Cooks Assigned (Up to 4)</th>
             <th>Capacity</th>
             <th>Action</th>
           </tr>
@@ -913,7 +917,7 @@
       </div>
 
       <div class="modal-section">
-        <label>Assigned Cooks (<span id="modalCookCount">0</span>/2 slots filled)</label>
+        <label>Assigned Cooks (<span id="modalCookCount">0</span>/4 slots filled)</label>
         <div id="modalCooksList" style="margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem;">
           <!-- list -->
         </div>
@@ -972,7 +976,10 @@
     let storedUser = localStorage.getItem('cooking_active_user') || "";
     let currentUser = (!testNames.has(storedUser) && volunteers.includes(storedUser)) ? storedUser : (volunteers[0] || "");
     let currentDate = new Date();
-    let selectedWeeklyDays = new Set([0, 6]); // Weekend default
+    // Default selection: Mon (1), Wed (3), Fri (5)
+    let selectedWeeklyDays = new Set([1, 3, 5]);
+    const COOKING_DAYS = new Set([1, 3, 5]); // 1=Mon, 3=Wed, 5=Fri
+    const MAX_COOKS = 4;
     
     let bookings = JSON.parse(localStorage.getItem('cooking_bookings')) || {};
     let availability = JSON.parse(localStorage.getItem('cooking_availability')) || {};
@@ -990,21 +997,30 @@
             // Filter out any mock test names
             const filteredVolunteers = data.volunteers.filter(v => !testNames.has(v));
             
-            // Clean test names from bookings
+            // Clean test names & migrate structure to single daily cooking slot if needed
             const cleanedBookings = {};
             if (data.bookings) {
-              for (const [date, dayObj] of Object.entries(data.bookings)) {
+              for (const [date, slotData] of Object.entries(data.bookings)) {
+                // Support legacy format or new flat daily slot format
+                let cooks = [];
+                let meal = '';
+                let notes = '';
+
+                if (slotData.cooks) {
+                  cooks = slotData.cooks.filter(c => !testNames.has(c));
+                  meal = slotData.meal || '';
+                  notes = slotData.notes || '';
+                } else if (slotData.lunch || slotData.dinner) {
+                  const combined = [...(slotData.lunch?.cooks || []), ...(slotData.dinner?.cooks || [])];
+                  cooks = [...new Set(combined.filter(c => !testNames.has(c)))];
+                  meal = slotData.lunch?.meal || slotData.dinner?.meal || '';
+                  notes = slotData.lunch?.notes || slotData.dinner?.notes || '';
+                }
+
                 cleanedBookings[date] = {
-                  lunch: {
-                    cooks: (dayObj.lunch?.cooks || []).filter(c => !testNames.has(c)),
-                    meal: (dayObj.lunch?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.lunch?.meal || '') : '',
-                    notes: (dayObj.lunch?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.lunch?.notes || '') : ''
-                  },
-                  dinner: {
-                    cooks: (dayObj.dinner?.cooks || []).filter(c => !testNames.has(c)),
-                    meal: (dayObj.dinner?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.dinner?.meal || '') : '',
-                    notes: (dayObj.dinner?.cooks || []).some(c => !testNames.has(c)) ? (dayObj.dinner?.notes || '') : ''
-                  }
+                  cooks: cooks.slice(0, MAX_COOKS),
+                  meal: meal,
+                  notes: notes
                 };
               }
             }
@@ -1023,7 +1039,6 @@
             bookings = cleanedBookings;
             availability = cleanedAvailability;
 
-            // If sample test names were in Firestore, purge them from the cloud
             if (data.volunteers.some(v => testNames.has(v))) {
               syncToCloud();
             }
@@ -1150,8 +1165,13 @@
     }
 
     function applyAvailabilityToMonth() {
+      if (!currentUser) {
+        alert("Please select or add your name as an active volunteer first (+ New).");
+        return;
+      }
+
       if (selectedWeeklyDays.size === 0) {
-        alert("Please select at least one day of the week.");
+        alert("Please select at least one cooking day (Mon, Wed, Fri).");
         return;
       }
 
@@ -1162,22 +1182,22 @@
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const mealType = document.getElementById('availMealType').value;
-      const shifts = mealType === 'all' ? ['lunch', 'dinner'] : [mealType];
 
       let markedCount = 0;
       for (let day = 1; day <= daysInMonth; day++) {
         const dateObj = new Date(year, month, day);
-        if (selectedWeeklyDays.has(dateObj.getDay())) {
+        const dayOfWeek = dateObj.getDay();
+        // Only mark availability for Mon(1), Wed(3), Fri(5)
+        if (COOKING_DAYS.has(dayOfWeek) && selectedWeeklyDays.has(dayOfWeek)) {
           const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-          availability[currentUser][dateKey] = shifts;
+          availability[currentUser][dateKey] = true;
           markedCount++;
         }
       }
 
       syncToCloud();
       renderCalendar();
-      showToast(`Marked availability for ${markedCount} days in ${currentDate.toLocaleString('default', { month: 'long' })}!`);
+      showToast(`Marked availability for ${markedCount} cooking days in ${currentDate.toLocaleString('default', { month: 'long' })}!`);
     }
 
     function prevMonth() {
@@ -1229,34 +1249,41 @@
 
       // Current month days
       for (let day = 1; day <= totalDays; day++) {
+        const dateObj = new Date(year, month, day);
+        const dayOfWeek = dateObj.getDay();
+        const isCookingDay = COOKING_DAYS.has(dayOfWeek); // Mon, Wed, Fri only
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = isCurrentMonth && today.getDate() === day;
         
-        const dayData = bookings[dateKey] || {
-          lunch: { cooks: [], meal: '', notes: '' },
-          dinner: { cooks: [], meal: '', notes: '' }
-        };
-
+        const slotData = bookings[dateKey] || { cooks: [], meal: '', notes: '' };
         const isUserAvailable = availability[currentUser] && availability[currentUser][dateKey];
 
         const cell = document.createElement('div');
-        cell.className = `calendar-day ${isToday ? 'is-today' : ''}`;
+        cell.className = `calendar-day ${isToday ? 'is-today' : ''} ${!isCookingDay ? 'non-cooking-day' : ''}`;
 
         let availTagHtml = '';
-        if (isUserAvailable) {
+        if (isCookingDay && isUserAvailable) {
           availTagHtml = `<span class="avail-indicator" title="You are marked available">Available</span>`;
         }
 
-        cell.innerHTML = `
-          <div class="day-number-row">
-            <span class="day-badge">${day}</span>
-            ${availTagHtml}
-          </div>
-          <div class="slot-list">
-            ${renderSlotCard(dateKey, 'lunch', dayData.lunch)}
-            ${renderSlotCard(dateKey, 'dinner', dayData.dinner)}
-          </div>
-        `;
+        if (isCookingDay) {
+          cell.innerHTML = `
+            <div class="day-number-row">
+              <span class="day-badge">${day}</span>
+              ${availTagHtml}
+            </div>
+            <div class="slot-list">
+              ${renderSlotCard(dateKey, slotData)}
+            </div>
+          `;
+        } else {
+          cell.innerHTML = `
+            <div class="day-number-row">
+              <span class="day-badge" style="opacity:0.6;">${day}</span>
+            </div>
+            <div class="non-cooking-label">No cooking today</div>
+          `;
+        }
 
         grid.appendChild(cell);
       }
@@ -1275,9 +1302,10 @@
       renderRosterTable();
     }
 
-    function renderSlotCard(dateKey, shift, slot) {
-      const isMyBooking = slot.cooks.includes(currentUser);
-      const isFull = slot.cooks.length >= 2;
+    function renderSlotCard(dateKey, slot) {
+      const cooks = slot.cooks || [];
+      const isMyBooking = currentUser && cooks.includes(currentUser);
+      const isFull = cooks.length >= MAX_COOKS;
 
       let statusClass = '';
       if (isMyBooking) {
@@ -1286,78 +1314,79 @@
         statusClass = 'booked';
       }
 
-      const shiftTitle = shift === 'lunch' ? '☀️ Lunch' : '🌙 Dinner';
-      const cookText = slot.cooks.length > 0 ? slot.cooks.join(', ') : 'No cooks yet';
-      const needTag = slot.cooks.length < 2 ? `<span class="slot-needed-tag">+${2 - slot.cooks.length} needed</span>` : `<span style="color:#166534; font-size:0.65rem; font-weight:700;">✓ Full</span>`;
+      const cooksCount = cooks.length;
+      const cookText = cooksCount > 0 ? cooks.join(', ') : 'No cooks booked yet';
+      const needTag = cooksCount < MAX_COOKS
+        ? `<span class="slot-needed-tag">+${MAX_COOKS - cooksCount} needed</span>`
+        : `<span style="color:#1d5828; font-size:0.7rem; font-weight:700;">✓ Full (${MAX_COOKS}/${MAX_COOKS})</span>`;
 
       return `
-        <div class="slot-item ${statusClass}" onclick="openSlotModal('${dateKey}', '${shift}')">
+        <div class="slot-item ${statusClass}" onclick="openSlotModal('${dateKey}')">
           <div class="slot-time-title">
-            <span>${shiftTitle}</span>
+            <span>🍲 Cooking Slot</span>
             ${needTag}
           </div>
           <div class="slot-cooks">${cookText}</div>
-          ${slot.meal ? `<div style="font-size:0.68rem; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🍲 ${slot.meal}</div>` : ''}
+          ${slot.meal ? `<div style="font-size:0.72rem; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#8a5e1e; margin-top:2px;">🥘 ${slot.meal}</div>` : ''}
         </div>
       `;
     }
 
     // Modal Handling
     let activeModalDate = null;
-    let activeModalShift = null;
 
-    function openSlotModal(dateKey, shift) {
-      activeModalDate = dateKey;
-      activeModalShift = shift;
-
-      if (!bookings[dateKey]) {
-        bookings[dateKey] = {
-          lunch: { cooks: [], meal: '', notes: '' },
-          dinner: { cooks: [], meal: '', notes: '' }
-        };
+    function openSlotModal(dateKey) {
+      const dateObj = new Date(dateKey + 'T00:00:00');
+      if (!COOKING_DAYS.has(dateObj.getDay())) {
+        return; // Non-cooking day
       }
 
-      const slot = bookings[dateKey][shift];
-      const shiftName = shift === 'lunch' ? 'Lunch Shift (10:00 AM – 2:00 PM)' : 'Dinner Shift (4:00 PM – 8:00 PM)';
-      
-      const dateObj = new Date(dateKey + 'T00:00:00');
+      activeModalDate = dateKey;
+
+      if (!bookings[dateKey]) {
+        bookings[dateKey] = { cooks: [], meal: '', notes: '' };
+      }
+
+      const slot = bookings[dateKey];
       const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-      document.getElementById('modalTitle').textContent = `${shiftName}`;
+      document.getElementById('modalTitle').textContent = `🍲 Cooking Team Slot`;
       document.getElementById('modalSubtitle').textContent = `📅 ${formattedDate}`;
 
+      // Volunteers available on this date
       const availVolunteers = [];
       for (const [volName, dates] of Object.entries(availability)) {
-        if (dates[dateKey] && (dates[dateKey].includes(shift) || dates[dateKey].includes('all'))) {
+        if (dates[dateKey]) {
           availVolunteers.push(volName);
         }
       }
 
       const volListEl = document.getElementById('modalVolunteersList');
       if (availVolunteers.length > 0) {
-        volListEl.innerHTML = availVolunteers.map(v => `<span style="display:inline-block; margin-right:6px; margin-bottom:4px; padding:2px 8px; border-radius:12px; background:#fef3c7; color:#854d0e; font-weight:600; font-size:0.75rem;">🙋 ${v}</span>`).join('');
+        volListEl.innerHTML = availVolunteers.map(v => `<span style="display:inline-block; margin-right:6px; margin-bottom:4px; padding:3px 9px; border-radius:12px; background:#fff9e6; color:#784a0c; font-weight:700; font-size:0.75rem; border:1px solid #ecd078;">🙋 ${v}</span>`).join('');
       } else {
-        volListEl.innerHTML = `<em>No volunteers logged availability specifically for this shift yet.</em>`;
+        volListEl.innerHTML = `<em style="color:#8a7c6f;">No volunteers marked availability for this day yet.</em>`;
       }
 
-      document.getElementById('modalCookCount').textContent = slot.cooks.length;
+      const cooks = slot.cooks || [];
+      document.getElementById('modalCookCount').textContent = cooks.length;
       const cooksListEl = document.getElementById('modalCooksList');
-      if (slot.cooks.length > 0) {
-        cooksListEl.innerHTML = slot.cooks.map(c => `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:0.5rem 0.75rem; border-radius:6px; border:1px solid #e2e8f0; font-size:0.85rem;">
+      if (cooks.length > 0) {
+        cooksListEl.innerHTML = cooks.map(c => `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#fdfbf7; padding:0.5rem 0.75rem; border-radius:6px; border:1px solid var(--border-color); font-size:0.85rem;">
             <span>🧑‍🍳 <strong>${c}</strong> ${c === currentUser ? '(You)' : ''}</span>
             <span class="badge-role">Confirmed Cook</span>
           </div>
         `).join('');
       } else {
-        cooksListEl.innerHTML = `<div style="font-size:0.85rem; color:#94a3b8; font-style:italic;">No cooks booked yet for this shift.</div>`;
+        cooksListEl.innerHTML = `<div style="font-size:0.85rem; color:#8a7c6f; font-style:italic;">No cooks booked yet for this day. Up to 4 cooks can join!</div>`;
       }
 
       document.getElementById('mealInput').value = slot.meal || '';
       document.getElementById('notesInput').value = slot.notes || '';
 
-      const isMyBooking = slot.cooks.includes(currentUser);
-      const isFull = slot.cooks.length >= 2;
+      const isMyBooking = currentUser && cooks.includes(currentUser);
+      const isFull = cooks.length >= MAX_COOKS;
 
       const bookBtn = document.getElementById('bookSlotBtn');
       const cancelBtn = document.getElementById('cancelBookingBtn');
@@ -1371,7 +1400,7 @@
         cancelBtn.style.display = 'none';
       } else {
         bookBtn.style.display = 'inline-block';
-        bookBtn.textContent = 'Book This Slot for Me';
+        bookBtn.textContent = 'Book This Slot (1 of 4)';
         cancelBtn.style.display = 'none';
       }
 
@@ -1381,16 +1410,23 @@
     function closeModal() {
       document.getElementById('slotModal').classList.remove('open');
       activeModalDate = null;
-      activeModalShift = null;
     }
 
     function bookCurrentSlot() {
-      if (!activeModalDate || !activeModalShift) return;
+      if (!activeModalDate) return;
+      if (!currentUser) {
+        alert("Please select or add your name as an active volunteer first (+ New).");
+        return;
+      }
 
-      const slot = bookings[activeModalDate][activeModalShift];
+      if (!bookings[activeModalDate]) {
+        bookings[activeModalDate] = { cooks: [], meal: '', notes: '' };
+      }
+
+      const slot = bookings[activeModalDate];
       if (!slot.cooks.includes(currentUser)) {
-        if (slot.cooks.length >= 2) {
-          alert("This slot is already fully booked by 2 cooks.");
+        if (slot.cooks.length >= MAX_COOKS) {
+          alert(`This slot is already fully booked with ${MAX_COOKS} cooks.`);
           return;
         }
         slot.cooks.push(currentUser);
@@ -1404,14 +1440,16 @@
       renderCalendar();
       updateStats();
       renderRosterTable();
-      showToast(`Booked your cooking slot for ${activeModalDate} (${activeModalShift})! 🎉`);
+      showToast(`Booked cooking slot for ${activeModalDate}! 🎉`);
     }
 
     function leaveCurrentSlot() {
-      if (!activeModalDate || !activeModalShift) return;
+      if (!activeModalDate) return;
 
-      const slot = bookings[activeModalDate][activeModalShift];
-      slot.cooks = slot.cooks.filter(c => c !== currentUser);
+      const slot = bookings[activeModalDate];
+      if (slot && slot.cooks) {
+        slot.cooks = slot.cooks.filter(c => c !== currentUser);
+      }
       
       syncToCloud();
       closeModal();
@@ -1427,23 +1465,28 @@
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
       let myBookingsCount = 0;
-      let totalFilledSlots = 0;
-      const totalPossibleSlots = daysInMonth * 2;
+      let totalCookingDaysInMonth = 0;
+      let totalCoveredCookingDays = 0;
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayData = bookings[dateKey];
-        if (dayData) {
-          if (dayData.lunch.cooks.includes(currentUser)) myBookingsCount++;
-          if (dayData.dinner.cooks.includes(currentUser)) myBookingsCount++;
-
-          if (dayData.lunch.cooks.length > 0) totalFilledSlots++;
-          if (dayData.dinner.cooks.length > 0) totalFilledSlots++;
+        const dateObj = new Date(year, month, day);
+        if (COOKING_DAYS.has(dateObj.getDay())) {
+          totalCookingDaysInMonth++;
+          const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const slot = bookings[dateKey];
+          if (slot && slot.cooks && slot.cooks.length > 0) {
+            totalCoveredCookingDays++;
+            if (currentUser && slot.cooks.includes(currentUser)) {
+              myBookingsCount++;
+            }
+          }
         }
       }
 
       document.getElementById('statMyBookings').textContent = myBookingsCount;
-      const coveragePercent = Math.round((totalFilledSlots / totalPossibleSlots) * 100);
+      const coveragePercent = totalCookingDaysInMonth > 0
+        ? Math.round((totalCoveredCookingDays / totalCookingDaysInMonth) * 100)
+        : 0;
       document.getElementById('statCoveredSlots').textContent = `${coveragePercent}%`;
     }
 
@@ -1458,44 +1501,39 @@
       let entriesFound = 0;
 
       for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(year, month, day);
+        if (!COOKING_DAYS.has(dateObj.getDay())) continue; // Mon, Wed, Fri only
+
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const dayData = bookings[dateKey];
-        if (!dayData) continue;
+        const slot = bookings[dateKey];
+        if (!slot || (slot.cooks.length === 0 && !slot.meal)) continue;
 
-        ['lunch', 'dinner'].forEach(shift => {
-          const slot = dayData[shift];
-          if (slot.cooks.length > 0 || slot.meal) {
-            entriesFound++;
-            const tr = document.createElement('tr');
-            
-            const dateObj = new Date(dateKey + 'T00:00:00');
-            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
-            const shiftLabel = shift === 'lunch' ? '☀️ Lunch (10am-2pm)' : '🌙 Dinner (4pm-8pm)';
-            const cooksStr = slot.cooks.join(', ') || '<span style="color:#94a3b8;">None</span>';
-            const capacityStr = `${slot.cooks.length} / 2 cooks`;
+        entriesFound++;
+        const tr = document.createElement('tr');
+        
+        const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+        const cooksStr = slot.cooks.length > 0 ? slot.cooks.join(', ') : '<span style="color:#8a7c6f;">None yet</span>';
+        const capacityStr = `${slot.cooks.length} / ${MAX_COOKS} cooks`;
 
-            tr.innerHTML = `
-              <td><strong>${dateStr}</strong></td>
-              <td>${shiftLabel}</td>
-              <td>${slot.meal ? `<span class="meal-tag">${slot.meal}</span>` : '<span style="color:#94a3b8;">TBD</span>'}</td>
-              <td>${cooksStr}</td>
-              <td>${capacityStr}</td>
-              <td>
-                <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="openSlotModal('${dateKey}', '${shift}')">
-                  View / Edit
-                </button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          }
-        });
+        tr.innerHTML = `
+          <td><strong>${dateStr}</strong></td>
+          <td>${slot.meal ? `<span class="meal-tag">${slot.meal}</span>` : '<span style="color:#8a7c6f;">TBD</span>'}</td>
+          <td>${cooksStr}</td>
+          <td>${capacityStr}</td>
+          <td>
+            <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="openSlotModal('${dateKey}')">
+              View / Edit
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
       }
 
       if (entriesFound === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align:center; color:#94a3b8; padding: 2rem;">
-              No confirmed bookings for this month yet. Use the calendar above to book slots!
+            <td colspan="5" style="text-align:center; color:#8a7c6f; padding: 2rem;">
+              No confirmed bookings for Monday, Wednesday, or Friday this month yet. Use the calendar above to book slots!
             </td>
           </tr>
         `;
