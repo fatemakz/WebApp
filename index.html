@@ -6,30 +6,33 @@
   <title>Community Kitchen — Volunteer Cooking Slot Planner</title>
   <style>
     :root {
-      --navy-dark: #122136;
-      --navy-primary: #1b3554;
-      --navy-light: #24466f;
-      --gold-primary: #c59b27;
-      --gold-hover: #b0881c;
-      --gold-light: #fef8e7;
-      --gold-border: #e8cca4;
-      --cream-bg: #f5f2eb;
+      /* FMB / Fatemi Khidmat Color Palette (Gold, Rich Warm Crimson & Charcoal) */
+      --primary-dark: #2a2118;
+      --primary-main: #3d2e1e;
+      --primary-maroon: #5c181f;
+      --primary-maroon-dark: #3f0e13;
+      --gold-primary: #b8860b;
+      --gold-accent: #c59b27;
+      --gold-hover: #996e06;
+      --gold-light: #fbf7ee;
+      --gold-border: #e2cca6;
+      --bg-cream: #fbf9f4;
       --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #5c6b7d;
-      --border-color: #d8e0e8;
+      --text-main: #2b231c;
+      --text-muted: #6b5e51;
+      --border-color: #e5dcce;
       
-      --slot-empty: #f8fafc;
-      --slot-booked: #e8f5e9;
-      --slot-booked-border: #81c784;
-      --slot-booked-text: #1b5e20;
-      --slot-avail: #fff9db;
-      --slot-avail-border: #ffd43b;
-      --slot-avail-text: #744210;
+      --slot-empty: #faf8f5;
+      --slot-booked: #f3f9f4;
+      --slot-booked-border: #8ec397;
+      --slot-booked-text: #1d5828;
+      --slot-avail: #fff9e6;
+      --slot-avail-border: #ecd078;
+      --slot-avail-text: #784a0c;
       
       --radius: 8px;
-      --shadow: 0 2px 6px rgba(18, 33, 54, 0.08);
-      --shadow-lg: 0 8px 20px rgba(18, 33, 54, 0.12);
+      --shadow: 0 3px 10px rgba(61, 46, 30, 0.07);
+      --shadow-lg: 0 10px 25px rgba(61, 46, 30, 0.12);
     }
 
     *, *::before, *::after {
@@ -40,24 +43,31 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--cream-bg);
+      background-color: var(--bg-cream);
+      /* FMB Khidmat Authentic Islamic Arabesque Geometric Pattern */
+      background-image:
+        radial-gradient(circle at 50% 50%, rgba(184, 134, 11, 0.16) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 0 0, rgba(92, 24, 31, 0.08) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 100% 100%, rgba(92, 24, 31, 0.08) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      background-attachment: fixed;
       color: var(--text-main);
       line-height: 1.5;
       padding-bottom: 60px;
     }
 
-    /* ITS 52 Top Bar / Header */
+    /* Top Gold Accent Bar */
     .top-gold-bar {
       height: 4px;
-      background: linear-gradient(90deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
+      background: linear-gradient(90deg, #8a6508 0%, #e8c35a 50%, #8a6508 100%);
     }
 
     header {
-      background: linear-gradient(180deg, var(--navy-dark) 0%, var(--navy-primary) 100%);
+      background: linear-gradient(180deg, var(--primary-maroon-dark) 0%, var(--primary-maroon) 100%);
       color: #ffffff;
-      padding: 1.5rem 1.25rem;
+      padding: 1.6rem 1.25rem;
       border-bottom: 3px solid var(--gold-primary);
-      box-shadow: 0 4px 14px rgba(18, 33, 54, 0.25);
+      box-shadow: 0 4px 18px rgba(42, 33, 24, 0.28);
     }
 
     .header-container {
@@ -73,44 +83,44 @@
     .logo-area {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.1rem;
     }
 
     .brand-emblem {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
-      border: 2px solid #ffffff;
+      background: radial-gradient(circle, #f5d67b 0%, #b8860b 100%);
+      border: 2px solid #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.6rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      font-size: 1.65rem;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     }
 
     .logo-area h1 {
-      font-size: 1.55rem;
+      font-size: 1.6rem;
       font-weight: 700;
       letter-spacing: 0.5px;
       color: #ffffff;
     }
 
     .logo-area h1 span {
-      color: #ffd700;
+      color: #f7db87;
     }
 
     .logo-area p {
-      font-size: 0.85rem;
-      color: #c9d8e8;
+      font-size: 0.86rem;
+      color: #edd9c5;
       letter-spacing: 0.3px;
     }
 
     .user-profile-badge {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(218, 165, 32, 0.45);
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(232, 204, 166, 0.4);
       backdrop-filter: blur(8px);
       padding: 0.45rem 1rem;
       border-radius: 6px;
@@ -121,18 +131,18 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
-      color: var(--navy-dark);
+      background: linear-gradient(135deg, #f5d67b 0%, #b8860b 100%);
+      color: var(--primary-maroon-dark);
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.05rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
     }
 
     .user-select {
-      background: var(--navy-dark);
+      background: var(--primary-maroon-dark);
       border: 1px solid var(--gold-primary);
       color: #ffffff;
       font-weight: 600;
@@ -149,15 +159,15 @@
     }
 
     .btn-new-vol {
-      background: linear-gradient(180deg, #dfb036 0%, #b8860b 100%);
-      border: 1px solid #ffffff;
-      color: var(--navy-dark);
+      background: linear-gradient(180deg, #e5ba48 0%, #b8860b 100%);
+      border: 1px solid #fff;
+      color: var(--primary-maroon-dark);
       font-size: 0.8rem;
       font-weight: 800;
       border-radius: 4px;
       padding: 0.35rem 0.75rem;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
       transition: all 0.2s ease;
     }
 
@@ -168,22 +178,22 @@
 
     .container {
       max-width: 1200px;
-      margin: 1.75rem auto;
+      margin: 1.85rem auto;
       padding: 0 1.25rem;
     }
 
-    /* Stats Bar styled with ITS 52 Card Aesthetics */
+    /* Stats Bar styled with FMB Khidmat Warm Palette */
     .stats-bar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1.25rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1.85rem;
     }
 
     .stat-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-top: 3px solid var(--navy-primary);
+      border-top: 3px solid var(--primary-maroon);
       border-radius: var(--radius);
       padding: 1.25rem 1.5rem;
       box-shadow: var(--shadow);
@@ -207,7 +217,7 @@
       height: 46px;
       border-radius: 8px;
       background: var(--gold-light);
-      color: var(--gold-hover);
+      color: var(--gold-primary);
       border: 1px solid var(--gold-border);
       display: flex;
       align-items: center;
@@ -215,10 +225,10 @@
       font-size: 1.4rem;
     }
 
-    .stat-icon.navy {
-      background: #eaf1f8;
-      color: var(--navy-primary);
-      border-color: #bcd1e6;
+    .stat-icon.maroon {
+      background: #fbf0f1;
+      color: var(--primary-maroon);
+      border-color: #ebd0d3;
     }
 
     .stat-icon.green {
@@ -231,7 +241,7 @@
       font-size: 1.65rem;
       font-weight: 800;
       line-height: 1.2;
-      color: var(--navy-dark);
+      color: var(--primary-dark);
     }
 
     .stat-label {
@@ -249,14 +259,14 @@
       border-top: 4px solid var(--gold-primary);
       border-radius: var(--radius);
       padding: 1.5rem 1.75rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1.85rem;
       box-shadow: var(--shadow);
     }
 
     .quick-avail-box h2 {
       font-size: 1.2rem;
       font-weight: 700;
-      color: var(--navy-primary);
+      color: var(--primary-maroon);
       margin-bottom: 0.35rem;
       display: flex;
       align-items: center;
@@ -283,7 +293,7 @@
       padding: 0.5rem 0.9rem;
       font-size: 0.85rem;
       font-weight: 700;
-      color: var(--navy-primary);
+      color: var(--primary-main);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -303,22 +313,22 @@
     }
 
     .apply-avail-btn {
-      background: linear-gradient(180deg, #dfb036 0%, #b8860b 100%);
+      background: linear-gradient(180deg, #d8a834 0%, #a87805 100%);
       color: #ffffff;
       text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-      border: 1px solid #9e7307;
+      border: 1px solid #855f04;
       padding: 0.55rem 1.4rem;
       border-radius: 6px;
       font-weight: 700;
       font-size: 0.88rem;
       cursor: pointer;
       margin-left: auto;
-      box-shadow: 0 2px 4px rgba(18, 33, 54, 0.15);
+      box-shadow: 0 2px 4px rgba(61, 46, 30, 0.15);
       transition: all 0.2s ease;
     }
 
     .apply-avail-btn:hover {
-      background: linear-gradient(180deg, #ebb93a 0%, #c49110 100%);
+      background: linear-gradient(180deg, #e5b948 0%, #b8860b 100%);
       transform: translateY(-1px);
     }
 
@@ -327,9 +337,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(180deg, #1b3554 0%, #152942 100%);
+      background: linear-gradient(180deg, var(--primary-maroon-dark) 0%, var(--primary-maroon) 100%);
       color: #ffffff;
-      padding: 0.85rem 1.25rem;
+      padding: 0.9rem 1.3rem;
       border-radius: 8px 8px 0 0;
       border-bottom: 2px solid var(--gold-primary);
       box-shadow: var(--shadow);
@@ -343,8 +353,8 @@
     }
 
     .month-nav-btn {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
       color: #ffffff;
       padding: 0.4rem 0.85rem;
       border-radius: 4px;
@@ -358,7 +368,7 @@
     }
 
     .month-nav-btn:hover {
-      background: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.24);
     }
 
     .btn-today {
@@ -385,12 +395,12 @@
     .calendar-weekdays {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      background: #edf2f7;
+      background: #f7f3ec;
       border-bottom: 1px solid var(--border-color);
       text-align: center;
       font-weight: 700;
       font-size: 0.82rem;
-      color: var(--navy-primary);
+      color: var(--primary-maroon);
       padding: 0.65rem 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -415,8 +425,8 @@
     }
 
     .calendar-day.other-month {
-      background: #fafbfc;
-      color: #a0aec0;
+      background: #fdfcf9;
+      color: #b5a999;
     }
 
     .calendar-day.is-today {
@@ -440,11 +450,11 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      color: var(--navy-dark);
+      color: var(--primary-dark);
     }
 
     .is-today .day-badge {
-      background: var(--navy-primary);
+      background: var(--primary-maroon);
       color: #ffffff;
       font-weight: 800;
     }
@@ -482,7 +492,7 @@
 
     .slot-item:hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 5px rgba(18, 33, 54, 0.12);
+      box-shadow: 0 2px 5px rgba(61, 46, 30, 0.1);
       border-color: var(--gold-primary);
     }
 
@@ -493,11 +503,11 @@
     }
 
     .slot-item.my-booking {
-      background: #eaf2fc;
-      border-color: #8bb3e2;
-      color: var(--navy-dark);
+      background: #fbf5ea;
+      border-color: #d6b26d;
+      color: var(--primary-dark);
       font-weight: 600;
-      border-left: 3px solid var(--navy-primary);
+      border-left: 3px solid var(--gold-primary);
     }
 
     .slot-time-title {
@@ -518,7 +528,7 @@
 
     .slot-needed-tag {
       font-size: 0.68rem;
-      color: #c53030;
+      color: #a3222e;
       font-weight: 700;
     }
 
@@ -526,7 +536,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(18, 33, 54, 0.65);
+      background: rgba(42, 33, 24, 0.65);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
@@ -550,7 +560,7 @@
       max-width: 520px;
       width: 100%;
       padding: 1.75rem;
-      box-shadow: 0 20px 30px -5px rgba(18, 33, 54, 0.3);
+      box-shadow: 0 20px 30px -5px rgba(42, 33, 24, 0.35);
       transform: scale(0.95);
       transition: transform 0.2s ease;
       max-height: 90vh;
@@ -573,7 +583,7 @@
     .modal-header h3 {
       font-size: 1.25rem;
       font-weight: 700;
-      color: var(--navy-dark);
+      color: var(--primary-dark);
     }
 
     .modal-close-btn {
@@ -593,7 +603,7 @@
       display: block;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--navy-primary);
+      color: var(--primary-maroon);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 0.5rem;
@@ -610,8 +620,8 @@
     }
 
     .input-field:focus {
-      border-color: var(--navy-primary);
-      box-shadow: 0 0 0 2px rgba(27, 53, 84, 0.15);
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.18);
     }
 
     .btn-group {
@@ -632,21 +642,21 @@
     }
 
     .btn-primary {
-      background: linear-gradient(180deg, #dfb036 0%, #b8860b 100%);
+      background: linear-gradient(180deg, #d8a834 0%, #a87805 100%);
       color: #ffffff;
-      border: 1px solid #9e7307;
+      border: 1px solid #855f04;
     }
     .btn-primary:hover {
-      background: linear-gradient(180deg, #ebb93a 0%, #c49110 100%);
+      background: linear-gradient(180deg, #e5b948 0%, #b8860b 100%);
     }
 
     .btn-secondary {
-      background: #edf2f7;
-      color: var(--navy-dark);
+      background: #f7f3ec;
+      color: var(--primary-dark);
       border-color: var(--border-color);
     }
     .btn-secondary:hover {
-      background: #e2e8f0;
+      background: #ede6d8;
     }
 
     .btn-danger {
@@ -662,7 +672,7 @@
     .roster-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-top: 3px solid var(--navy-primary);
+      border-top: 3px solid var(--primary-maroon);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 1.5rem;
@@ -673,7 +683,7 @@
       font-size: 1.2rem;
       margin-bottom: 1rem;
       font-weight: 700;
-      color: var(--navy-dark);
+      color: var(--primary-dark);
     }
 
     .roster-table {
@@ -689,9 +699,9 @@
     }
 
     .roster-table th {
-      background: #edf2f7;
+      background: #f7f3ec;
       font-weight: 700;
-      color: var(--navy-primary);
+      color: var(--primary-maroon);
       font-size: 0.82rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -703,9 +713,9 @@
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      background: #eaf1f8;
-      color: var(--navy-dark);
-      border: 1px solid #bcd1e6;
+      background: #fbf0f1;
+      color: var(--primary-maroon);
+      border: 1px solid #ebd0d3;
     }
 
     .meal-tag {
@@ -724,13 +734,13 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: var(--navy-dark);
+      background: var(--primary-maroon-dark);
       color: #ffffff;
       border-left: 4px solid var(--gold-primary);
       padding: 0.75rem 1.25rem;
       border-radius: 6px;
       font-size: 0.9rem;
-      box-shadow: 0 10px 20px rgba(18, 33, 54, 0.3);
+      box-shadow: 0 10px 20px rgba(42, 33, 24, 0.35);
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s ease;
@@ -766,14 +776,14 @@
       <div class="logo-area">
         <div class="brand-emblem">🍲</div>
         <div>
-          <h1>Community <span>Kitchen Planner</span></h1>
-          <p>ITS 52 Portal Style • Weekly Availability & Monthly Shift Booking</p>
+          <h1>FMB Community <span>Kitchen Planner</span></h1>
+          <p>Khidmat Portal • Weekly Availability & Monthly Shift Booking</p>
         </div>
       </div>
       <div class="user-profile-badge">
         <div class="user-avatar" id="currentAvatar">+</div>
         <div>
-          <span style="font-size: 0.72rem; display: block; color: #ffd700; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Active Volunteer</span>
+          <span style="font-size: 0.72rem; display: block; color: #f7db87; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Active Volunteer</span>
           <div style="display: flex; align-items: center; gap: 0.45rem; margin-top: 2px;">
             <select id="userSelector" class="user-select" onchange="changeActiveUser(this.value)">
               <!-- Populated dynamically -->
@@ -796,7 +806,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon navy">🧑‍🍳</div>
+        <div class="stat-icon maroon">🧑‍🍳</div>
         <div>
           <div class="stat-val" id="statTotalVolunteers">0</div>
           <div class="stat-label">Active Volunteers</div>
