@@ -669,13 +669,12 @@
         <div class="user-avatar" id="currentAvatar">A</div>
         <div>
           <span style="font-size: 0.75rem; display: block; opacity: 0.85;">Active Volunteer</span>
-          <select id="userSelector" class="user-select" onchange="changeActiveUser(this.value)">
-            <option value="Alice Johnson">Alice Johnson (Head Cook)</option>
-            <option value="Bob Smith">Bob Smith (Prep Cook)</option>
-            <option value="Charlie Davis">Charlie Davis (Assistant)</option>
-            <option value="Elena Rostova">Elena Rostova (Chef)</option>
-            <option value="Marcus Lee">Marcus Lee (Volunteer)</option>
-          </select>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <select id="userSelector" class="user-select" onchange="changeActiveUser(this.value)">
+              <!-- Populated dynamically -->
+            </select>
+            <button type="button" onclick="promptAddNewVolunteer()" title="Add New Volunteer" style="background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-size: 0.8rem; font-weight: bold; border-radius: 6px; padding: 2px 8px; cursor: pointer;">+ New</button>
+          </div>
         </div>
       </div>
     </div>
@@ -830,18 +829,22 @@
 
   <script>
     // App State
-    let currentUser = "Alice Johnson";
+    let volunteers = JSON.parse(localStorage.getItem('cooking_volunteers')) || [
+      "Alice Johnson",
+      "Bob Smith",
+      "Charlie Davis",
+      "Elena Rostova",
+      "Marcus Lee"
+    ];
+    let currentUser = volunteers[0] || "Alice Johnson";
     let currentDate = new Date();
     let selectedWeeklyDays = new Set([0, 6]); // Weekend default
     
     let bookings = JSON.parse(localStorage.getItem('cooking_bookings')) || {};
-    let availability = JSON.parse(localStorage.getItem('cooking_availability')) || {
-      "Alice Johnson": {},
-      "Bob Smith": {},
-      "Charlie Davis": {},
-      "Elena Rostova": {},
-      "Marcus Lee": {}
-    };
+    let availability = JSON.parse(localStorage.getItem('cooking_availability')) || {};
+    volunteers.forEach(v => {
+      if (!availability[v]) availability[v] = {};
+    });
 
     function initSeedData() {
       const today = new Date();
@@ -880,11 +883,43 @@
 
     function saveData() {
       try {
+        localStorage.setItem('cooking_volunteers', JSON.stringify(volunteers));
         localStorage.setItem('cooking_bookings', JSON.stringify(bookings));
         localStorage.setItem('cooking_availability', JSON.stringify(availability));
       } catch (e) {
         console.warn("Storage warning:", e);
       }
+    }
+
+    function renderVolunteerDropdown() {
+      const select = document.getElementById('userSelector');
+      select.innerHTML = '';
+      volunteers.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (name === currentUser) opt.selected = true;
+        select.appendChild(opt);
+      });
+      document.getElementById('currentAvatar').textContent = currentUser.charAt(0).toUpperCase();
+      document.getElementById('statTotalVolunteers').textContent = volunteers.length;
+    }
+
+    function promptAddNewVolunteer() {
+      const name = prompt("Enter your name to join as a volunteer cook:");
+      if (!name || !name.trim()) return;
+      const cleanName = name.trim();
+      if (!volunteers.includes(cleanName)) {
+        volunteers.push(cleanName);
+        availability[cleanName] = {};
+      }
+      currentUser = cleanName;
+      saveData();
+      renderVolunteerDropdown();
+      renderCalendar();
+      updateStats();
+      renderRosterTable();
+      showToast(`Welcome ${cleanName}! You are now active.`);
     }
 
     function toggleWeekDay(dayIndex) {
@@ -1280,6 +1315,7 @@
 
     // Initialize application
     initSeedData();
+    renderVolunteerDropdown();
     updateWeeklyButtons();
     renderCalendar();
   </script>
