@@ -6,27 +6,30 @@
   <title>Community Kitchen — Volunteer Cooking Slot Planner</title>
   <style>
     :root {
-      --bg: #f8fafc;
+      --navy-dark: #122136;
+      --navy-primary: #1b3554;
+      --navy-light: #24466f;
+      --gold-primary: #c59b27;
+      --gold-hover: #b0881c;
+      --gold-light: #fef8e7;
+      --gold-border: #e8cca4;
+      --cream-bg: #f5f2eb;
       --card-bg: #ffffff;
-      --primary: #ea580c;
-      --primary-hover: #c2410c;
-      --primary-light: #ffedd5;
-      --primary-border: #fed7aa;
-      --secondary: #0f766e;
-      --secondary-light: #ccfbf1;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --slot-empty: #f1f5f9;
-      --slot-booked: #dcfce7;
-      --slot-booked-border: #86efac;
-      --slot-booked-text: #166534;
-      --slot-avail: #fef3c7;
-      --slot-avail-border: #fde047;
-      --slot-avail-text: #854d0e;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.03);
+      --text-main: #1f2937;
+      --text-muted: #5c6b7d;
+      --border-color: #d8e0e8;
+      
+      --slot-empty: #f8fafc;
+      --slot-booked: #e8f5e9;
+      --slot-booked-border: #81c784;
+      --slot-booked-text: #1b5e20;
+      --slot-avail: #fff9db;
+      --slot-avail-border: #ffd43b;
+      --slot-avail-text: #744210;
+      
+      --radius: 8px;
+      --shadow: 0 2px 6px rgba(18, 33, 54, 0.08);
+      --shadow-lg: 0 8px 20px rgba(18, 33, 54, 0.12);
     }
 
     *, *::before, *::after {
@@ -36,18 +39,25 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--cream-bg);
+      color: var(--text-main);
       line-height: 1.5;
       padding-bottom: 60px;
     }
 
+    /* ITS 52 Top Bar / Header */
+    .top-gold-bar {
+      height: 4px;
+      background: linear-gradient(90deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
+    }
+
     header {
-      background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+      background: linear-gradient(180deg, var(--navy-dark) 0%, var(--navy-primary) 100%);
       color: #ffffff;
-      padding: 2rem 1.5rem;
-      box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+      padding: 1.5rem 1.25rem;
+      border-bottom: 3px solid var(--gold-primary);
+      box-shadow: 0 4px 14px rgba(18, 33, 54, 0.25);
     }
 
     .header-container {
@@ -60,181 +70,194 @@
       gap: 1.5rem;
     }
 
-    .logo-area h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
+    .logo-area {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 1rem;
+    }
+
+    .brand-emblem {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffd700 0%, #b8860b 100%);
+      border: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .logo-area h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    .logo-area h1 span {
+      color: #ffd700;
     }
 
     .logo-area p {
-      font-size: 0.95rem;
-      opacity: 0.92;
-      margin-top: 0.25rem;
+      font-size: 0.85rem;
+      color: #c9d8e8;
+      letter-spacing: 0.3px;
     }
 
     .user-profile-badge {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(218, 165, 32, 0.45);
       backdrop-filter: blur(8px);
-      padding: 0.5rem 1rem;
-      border-radius: 9999px;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
       gap: 0.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .user-avatar {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: #ffffff;
-      color: var(--primary);
-      font-weight: bold;
+      background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+      color: var(--navy-dark);
+      font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .user-select {
-      background: transparent;
-      border: none;
+      background: var(--navy-dark);
+      border: 1px solid var(--gold-primary);
       color: #ffffff;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       cursor: pointer;
       outline: none;
+      padding: 0.35rem 0.6rem;
+      border-radius: 4px;
     }
 
     .user-select option {
-      color: var(--text);
+      color: var(--text-main);
       background: #ffffff;
+    }
+
+    .btn-new-vol {
+      background: linear-gradient(180deg, #dfb036 0%, #b8860b 100%);
+      border: 1px solid #ffffff;
+      color: var(--navy-dark);
+      font-size: 0.8rem;
+      font-weight: 800;
+      border-radius: 4px;
+      padding: 0.35rem 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+    }
+
+    .btn-new-vol:hover {
+      background: #ffd700;
+      transform: translateY(-1px);
     }
 
     .container {
       max-width: 1200px;
-      margin: 2rem auto;
+      margin: 1.75rem auto;
       padding: 0 1.25rem;
     }
 
+    /* Stats Bar styled with ITS 52 Card Aesthetics */
     .stats-bar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
     }
 
     .stat-card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
+      border-top: 3px solid var(--navy-primary);
       border-radius: var(--radius);
-      padding: 1.25rem;
+      padding: 1.25rem 1.5rem;
       box-shadow: var(--shadow);
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card.gold-accent {
+      border-top-color: var(--gold-primary);
     }
 
     .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      background: var(--primary-light);
-      color: var(--primary);
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      background: var(--gold-light);
+      color: var(--gold-hover);
+      border: 1px solid var(--gold-border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
+    }
+
+    .stat-icon.navy {
+      background: #eaf1f8;
+      color: var(--navy-primary);
+      border-color: #bcd1e6;
     }
 
     .stat-icon.green {
       background: var(--slot-booked);
       color: var(--slot-booked-text);
-    }
-
-    .stat-icon.blue {
-      background: var(--secondary-light);
-      color: var(--secondary);
+      border-color: var(--slot-booked-border);
     }
 
     .stat-val {
-      font-size: 1.6rem;
+      font-size: 1.65rem;
       font-weight: 800;
       line-height: 1.2;
+      color: var(--navy-dark);
     }
 
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    /* Month Navigator */
-    .month-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-bg);
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      margin-bottom: 1.5rem;
-    }
-
-    .month-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .month-nav-btn {
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.45rem 0.9rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: background 0.15s ease;
-    }
-
-    .month-nav-btn:hover {
-      background: #e2e8f0;
-    }
-
-    .btn-today {
-      background: var(--primary-light);
-      border-color: var(--primary-border);
-      color: var(--primary);
-    }
-    .btn-today:hover {
-      background: #fed7aa;
-    }
-
     /* Quick Availability Banner */
     .quick-avail-box {
-      background: linear-gradient(to right, #fff7ed, #f0fdfa);
-      border: 1px solid #fed7aa;
+      background: var(--card-bg);
+      border: 1px solid var(--gold-border);
+      border-top: 4px solid var(--gold-primary);
       border-radius: var(--radius);
-      padding: 1.5rem;
+      padding: 1.5rem 1.75rem;
       margin-bottom: 1.75rem;
       box-shadow: var(--shadow);
     }
 
     .quick-avail-box h2 {
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 700;
-      color: #9a3412;
-      margin-bottom: 0.5rem;
+      color: var(--navy-primary);
+      margin-bottom: 0.35rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -243,23 +266,24 @@
     .quick-avail-box p {
       font-size: 0.9rem;
       color: var(--text-muted);
-      margin-bottom: 1rem;
+      margin-bottom: 1.15rem;
     }
 
     .weekly-presets {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: 0.65rem;
       align-items: center;
     }
 
     .day-toggle {
       background: #ffffff;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
       padding: 0.5rem 0.9rem;
       font-size: 0.85rem;
-      font-weight: 600;
+      font-weight: 700;
+      color: var(--navy-primary);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -267,55 +291,116 @@
       gap: 0.4rem;
     }
 
+    .day-toggle:hover {
+      border-color: var(--gold-primary);
+    }
+
     .day-toggle.selected {
-      background: #fef3c7;
-      border-color: #eab308;
-      color: #854d0e;
+      background: var(--gold-light);
+      border-color: var(--gold-primary);
+      color: var(--gold-hover);
+      box-shadow: 0 1px 3px rgba(184, 134, 11, 0.2);
     }
 
     .apply-avail-btn {
-      background: var(--primary);
+      background: linear-gradient(180deg, #dfb036 0%, #b8860b 100%);
       color: #ffffff;
-      border: none;
-      padding: 0.55rem 1.25rem;
-      border-radius: 8px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      border: 1px solid #9e7307;
+      padding: 0.55rem 1.4rem;
+      border-radius: 6px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       cursor: pointer;
       margin-left: auto;
-      transition: background 0.2s ease;
+      box-shadow: 0 2px 4px rgba(18, 33, 54, 0.15);
+      transition: all 0.2s ease;
     }
 
     .apply-avail-btn:hover {
-      background: var(--primary-hover);
+      background: linear-gradient(180deg, #ebb93a 0%, #c49110 100%);
+      transform: translateY(-1px);
+    }
+
+    /* Month Navigator Header */
+    .month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, #1b3554 0%, #152942 100%);
+      color: #ffffff;
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 2px solid var(--gold-primary);
+      box-shadow: var(--shadow);
+    }
+
+    .month-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    .month-nav-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      padding: 0.4rem 0.85rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s ease;
+    }
+
+    .month-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-today {
+      background: var(--gold-primary);
+      border-color: #ffd700;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .btn-today:hover {
+      background: var(--gold-hover);
     }
 
     /* Calendar Grid */
     .calendar-card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
       box-shadow: var(--shadow-lg);
       overflow: hidden;
+      margin-bottom: 2rem;
     }
 
     .calendar-weekdays {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      background: #f8fafc;
-      border-bottom: 1px solid var(--border);
+      background: #edf2f7;
+      border-bottom: 1px solid var(--border-color);
       text-align: center;
       font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      padding: 0.75rem 0;
+      font-size: 0.82rem;
+      color: var(--navy-primary);
+      padding: 0.65rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 1px;
-      background: var(--border);
+      background: var(--border-color);
     }
 
     .calendar-day {
@@ -330,12 +415,13 @@
     }
 
     .calendar-day.other-month {
-      background: #f8fafc;
-      color: #94a3b8;
+      background: #fafbfc;
+      color: #a0aec0;
     }
 
     .calendar-day.is-today {
-      background: #fffdfa;
+      background: #fffdf5;
+      border: 1.5px solid var(--gold-primary);
     }
 
     .day-number-row {
@@ -354,17 +440,19 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
+      color: var(--navy-dark);
     }
 
     .is-today .day-badge {
-      background: var(--primary);
+      background: var(--navy-primary);
       color: #ffffff;
+      font-weight: 800;
     }
 
     .avail-indicator {
       font-size: 0.68rem;
       padding: 2px 6px;
-      border-radius: 12px;
+      border-radius: 4px;
       background: var(--slot-avail);
       color: var(--slot-avail-text);
       font-weight: 700;
@@ -381,20 +469,21 @@
 
     .slot-item {
       padding: 0.4rem 0.5rem;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 0.75rem;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
       background: var(--slot-empty);
       display: flex;
       flex-direction: column;
       gap: 2px;
       cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
     }
 
     .slot-item:hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 5px rgba(18, 33, 54, 0.12);
+      border-color: var(--gold-primary);
     }
 
     .slot-item.booked {
@@ -404,10 +493,11 @@
     }
 
     .slot-item.my-booking {
-      background: #eff6ff;
-      border-color: #93c5fd;
-      color: #1e40af;
+      background: #eaf2fc;
+      border-color: #8bb3e2;
+      color: var(--navy-dark);
       font-weight: 600;
+      border-left: 3px solid var(--navy-primary);
     }
 
     .slot-time-title {
@@ -420,7 +510,7 @@
     .slot-cooks {
       font-size: 0.72rem;
       color: inherit;
-      opacity: 0.9;
+      opacity: 0.95;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -428,15 +518,15 @@
 
     .slot-needed-tag {
       font-size: 0.68rem;
-      color: #dc2626;
-      font-weight: 600;
+      color: #c53030;
+      font-weight: 700;
     }
 
     /* Modal Styling */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(18, 33, 54, 0.65);
       backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
@@ -455,11 +545,12 @@
 
     .modal-box {
       background: #ffffff;
-      border-radius: 16px;
+      border-radius: 8px;
+      border-top: 4px solid var(--gold-primary);
       max-width: 520px;
       width: 100%;
       padding: 1.75rem;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+      box-shadow: 0 20px 30px -5px rgba(18, 33, 54, 0.3);
       transform: scale(0.95);
       transition: transform 0.2s ease;
       max-height: 90vh;
@@ -475,14 +566,14 @@
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 1.25rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-color);
       padding-bottom: 0.85rem;
     }
 
     .modal-header h3 {
       font-size: 1.25rem;
       font-weight: 700;
-      color: var(--text);
+      color: var(--navy-dark);
     }
 
     .modal-close-btn {
@@ -500,9 +591,9 @@
 
     .modal-section label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--navy-primary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 0.5rem;
@@ -511,15 +602,16 @@
     .input-field {
       width: 100%;
       padding: 0.65rem 0.85rem;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s ease;
     }
 
     .input-field:focus {
-      border-color: var(--primary);
+      border-color: var(--navy-primary);
+      box-shadow: 0 0 0 2px rgba(27, 53, 84, 0.15);
     }
 
     .btn-group {
@@ -531,8 +623,8 @@
 
     .btn {
       padding: 0.6rem 1.25rem;
-      border-radius: 8px;
-      font-weight: 600;
+      border-radius: 6px;
+      font-weight: 700;
       font-size: 0.9rem;
       cursor: pointer;
       border: 1px solid transparent;
@@ -540,17 +632,18 @@
     }
 
     .btn-primary {
-      background: var(--primary);
+      background: linear-gradient(180deg, #dfb036 0%, #b8860b 100%);
       color: #ffffff;
+      border: 1px solid #9e7307;
     }
     .btn-primary:hover {
-      background: var(--primary-hover);
+      background: linear-gradient(180deg, #ebb93a 0%, #c49110 100%);
     }
 
     .btn-secondary {
-      background: #f1f5f9;
-      color: var(--text);
-      border-color: var(--border);
+      background: #edf2f7;
+      color: var(--navy-dark);
+      border-color: var(--border-color);
     }
     .btn-secondary:hover {
       background: #e2e8f0;
@@ -558,7 +651,7 @@
 
     .btn-danger {
       background: #fee2e2;
-      color: #b91c1c;
+      color: #991b1b;
       border-color: #fca5a5;
     }
     .btn-danger:hover {
@@ -568,7 +661,8 @@
     /* Roster Table */
     .roster-card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
+      border-top: 3px solid var(--navy-primary);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 1.5rem;
@@ -579,6 +673,7 @@
       font-size: 1.2rem;
       margin-bottom: 1rem;
       font-weight: 700;
+      color: var(--navy-dark);
     }
 
     .roster-table {
@@ -590,13 +685,16 @@
     .roster-table th, .roster-table td {
       padding: 0.75rem 1rem;
       text-align: left;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .roster-table th {
-      background: #f8fafc;
+      background: #edf2f7;
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--navy-primary);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .badge-role {
@@ -605,8 +703,9 @@
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      background: #e0e7ff;
-      color: #3730a3;
+      background: #eaf1f8;
+      color: var(--navy-dark);
+      border: 1px solid #bcd1e6;
     }
 
     .meal-tag {
@@ -615,8 +714,9 @@
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      background: #fef3c7;
-      color: #92400e;
+      background: var(--gold-light);
+      color: var(--gold-hover);
+      border: 1px solid var(--gold-border);
     }
 
     /* Notification toast */
@@ -624,12 +724,13 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #1e293b;
+      background: var(--navy-dark);
       color: #ffffff;
+      border-left: 4px solid var(--gold-primary);
       padding: 0.75rem 1.25rem;
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 0.9rem;
-      box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 20px rgba(18, 33, 54, 0.3);
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s ease;
@@ -643,7 +744,7 @@
 
     @media (max-width: 850px) {
       .calendar-weekdays {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
       }
       .calendar-day {
         min-height: 110px;
@@ -657,23 +758,27 @@
   </style>
 </head>
 <body>
+  <div class="top-gold-bar"></div>
 
   <!-- Header -->
   <header>
     <div class="header-container">
       <div class="logo-area">
-        <h1>🍲 Community Kitchen Planner</h1>
-        <p>Log weekly availability & book cooking shifts for the entire month</p>
+        <div class="brand-emblem">🍲</div>
+        <div>
+          <h1>Community <span>Kitchen Planner</span></h1>
+          <p>ITS 52 Portal Style • Weekly Availability & Monthly Shift Booking</p>
+        </div>
       </div>
       <div class="user-profile-badge">
-        <div class="user-avatar" id="currentAvatar">A</div>
+        <div class="user-avatar" id="currentAvatar">+</div>
         <div>
-          <span style="font-size: 0.75rem; display: block; opacity: 0.85;">Active Volunteer</span>
-          <div style="display: flex; align-items: center; gap: 0.4rem;">
+          <span style="font-size: 0.72rem; display: block; color: #ffd700; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Active Volunteer</span>
+          <div style="display: flex; align-items: center; gap: 0.45rem; margin-top: 2px;">
             <select id="userSelector" class="user-select" onchange="changeActiveUser(this.value)">
               <!-- Populated dynamically -->
             </select>
-            <button type="button" onclick="promptAddNewVolunteer()" title="Add New Volunteer" style="background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-size: 0.8rem; font-weight: bold; border-radius: 6px; padding: 2px 8px; cursor: pointer;">+ New</button>
+            <button type="button" class="btn-new-vol" onclick="promptAddNewVolunteer()" title="Add New Volunteer">+ New</button>
           </div>
         </div>
       </div>
@@ -683,22 +788,22 @@
   <div class="container">
     <!-- Top Stats -->
     <div class="stats-bar">
-      <div class="stat-card">
+      <div class="stat-card gold-accent">
         <div class="stat-icon">📅</div>
         <div>
           <div class="stat-val" id="statMyBookings">0</div>
-          <div class="stat-label">My Booked Slots</div>
+          <div class="stat-label">My Booked Shifts</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon green">🧑‍🍳</div>
+        <div class="stat-icon navy">🧑‍🍳</div>
         <div>
-          <div class="stat-val" id="statTotalVolunteers">5</div>
+          <div class="stat-val" id="statTotalVolunteers">0</div>
           <div class="stat-label">Active Volunteers</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon blue">🍲</div>
+        <div class="stat-icon green">🍲</div>
         <div>
           <div class="stat-val" id="statCoveredSlots">0%</div>
           <div class="stat-label">Month Slot Coverage</div>
