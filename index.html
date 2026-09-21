@@ -827,7 +827,29 @@
     <span id="toastText">Action completed successfully!</span>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCYUGSeV82lQzCf_qyZeWD2kox7pRUERQo",
+      authDomain: "cooking-webapp.firebaseapp.com",
+      projectId: "cooking-webapp",
+      storageBucket: "cooking-webapp.firebasestorage.app",
+      messagingSenderId: "461240019044",
+      appId: "1:461240019044:web:a0a61168397b16be34d771"
+    };
+
+    // Initialize Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     // App State
     let volunteers = JSON.parse(localStorage.getItem('cooking_volunteers')) || [
       "Alice Johnson",
@@ -836,7 +858,7 @@
       "Elena Rostova",
       "Marcus Lee"
     ];
-    let currentUser = volunteers[0] || "Alice Johnson";
+    let currentUser = localStorage.getItem('cooking_active_user') || volunteers[0] || "Alice Johnson";
     let currentDate = new Date();
     let selectedWeeklyDays = new Set([0, 6]); // Weekend default
     
@@ -845,6 +867,43 @@
     volunteers.forEach(v => {
       if (!availability[v]) availability[v] = {};
     });
+
+    let isCloudSynced = false;
+
+    // Real-time Firestore Sync Listeners
+    function setupFirestoreSync() {
+      const stateDocRef = doc(db, "kitchen_data", "current_state");
+
+      onSnapshot(stateDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.volunteers && Array.isArray(data.volunteers)) {
+            volunteers = data.volunteers;
+          }
+          if (data.bookings) {
+            bookings = data.bookings;
+          }
+          if (data.availability) {
+            availability = data.availability;
+          }
+          isCloudSynced = true;
+          saveLocalCache();
+          if (!volunteers.includes(currentUser)) {
+            currentUser = volunteers[0] || "Alice Johnson";
+          }
+          renderVolunteerDropdown();
+          renderCalendar();
+          updateStats();
+          renderRosterTable();
+        } else {
+          // First time initialization in Cloud Firestore
+          initSeedData();
+          syncToCloud();
+        }
+      }, (error) => {
+        console.warn("Firestore live sync note:", error.message);
+      });
+    }
 
     function initSeedData() {
       const today = new Date();
@@ -876,18 +935,32 @@
           lunch: { cooks: ["Marcus Lee"], meal: "Vegetable Fried Rice & Tofu", notes: "Nut-free" },
           dinner: { cooks: [], meal: "", notes: "" }
         };
-
-        saveData();
       }
     }
 
-    function saveData() {
+    function saveLocalCache() {
       try {
         localStorage.setItem('cooking_volunteers', JSON.stringify(volunteers));
         localStorage.setItem('cooking_bookings', JSON.stringify(bookings));
         localStorage.setItem('cooking_availability', JSON.stringify(availability));
+        localStorage.setItem('cooking_active_user', currentUser);
       } catch (e) {
-        console.warn("Storage warning:", e);
+        console.warn("Local storage warning:", e);
+      }
+    }
+
+    async function syncToCloud() {
+      saveLocalCache();
+      try {
+        const stateDocRef = doc(db, "kitchen_data", "current_state");
+        await setDoc(stateDocRef, {
+          volunteers: volunteers,
+          bookings: bookings,
+          availability: availability,
+          lastUpdated: new Date().toISOString()
+        }, { merge: true });
+      } catch (err) {
+        console.warn("Cloud update saved locally. Firestore sync error:", err);
       }
     }
 
@@ -914,7 +987,7 @@
         availability[cleanName] = {};
       }
       currentUser = cleanName;
-      saveData();
+      syncToCloud();
       renderVolunteerDropdown();
       renderCalendar();
       updateStats();
@@ -944,6 +1017,7 @@
 
     function changeActiveUser(name) {
       currentUser = name;
+      saveLocalCache();
       document.getElementById('currentAvatar').textContent = name.charAt(0);
       showToast(`Switched active volunteer to ${name}`);
       renderCalendar();
@@ -977,7 +1051,7 @@
         }
       }
 
-      saveData();
+      syncToCloud();
       renderCalendar();
       showToast(`Marked availability for ${markedCount} days in ${currentDate.toLocaleString('default', { month: 'long' })}!`);
     }
@@ -1201,7 +1275,7 @@
       slot.meal = document.getElementById('mealInput').value.trim();
       slot.notes = document.getElementById('notesInput').value.trim();
 
-      saveData();
+      syncToCloud();
       closeModal();
       renderCalendar();
       updateStats();
@@ -1215,7 +1289,7 @@
       const slot = bookings[activeModalDate][activeModalShift];
       slot.cooks = slot.cooks.filter(c => c !== currentUser);
       
-      saveData();
+      syncToCloud();
       closeModal();
       renderCalendar();
       updateStats();
@@ -1313,11 +1387,25 @@
       }, 3500);
     }
 
+    // Expose functions globally for HTML inline onclick handlers (module scope fix)
+    window.changeActiveUser = changeActiveUser;
+    window.promptAddNewVolunteer = promptAddNewVolunteer;
+    window.toggleWeekDay = toggleWeekDay;
+    window.applyAvailabilityToMonth = applyAvailabilityToMonth;
+    window.prevMonth = prevMonth;
+    window.nextMonth = nextMonth;
+    window.goToToday = goToToday;
+    window.openSlotModal = openSlotModal;
+    window.closeModal = closeModal;
+    window.bookCurrentSlot = bookCurrentSlot;
+    window.leaveCurrentSlot = leaveCurrentSlot;
+
     // Initialize application
     initSeedData();
     renderVolunteerDropdown();
     updateWeeklyButtons();
     renderCalendar();
+    setupFirestoreSync();
   </script>
 </body>
 </html>
